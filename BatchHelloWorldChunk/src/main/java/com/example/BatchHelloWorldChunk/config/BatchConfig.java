@@ -1,7 +1,9 @@
 package com.example.BatchHelloWorldChunk.config;
 
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.JobFactory;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -33,13 +35,20 @@ public class BatchConfig {
     @Autowired
     private ItemWriter<String> writer;
 
+    @Autowired
+    private JobExecutionListener jobExecutionListener;
+
+    @Autowired
+    private StepExecutionListener stepExecutionListener;
+
     @Bean
     public Step chunkStep(){
         return stepBuilderFactory.get("HelloChunkStep")
-                .<String,String>chunk(3)
+                .<String,String>chunk(1)
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
+                .listener(stepExecutionListener)
                 .build();
     }
 
@@ -48,6 +57,7 @@ public class BatchConfig {
         return jobBuilderFactory.get("HelloWorldChunkJob")
                 .incrementer(new RunIdIncrementer())
                 .start(chunkStep())
+                .listener(jobExecutionListener)
                 .build();
     }
 }
