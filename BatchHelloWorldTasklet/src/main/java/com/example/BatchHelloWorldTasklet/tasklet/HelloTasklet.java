@@ -1,5 +1,6 @@
 package com.example.BatchHelloWorldTasklet.tasklet;
 
+import com.example.BatchHelloWorldTasklet.property.SampleProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -7,6 +8,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,9 @@ public class HelloTasklet implements Tasklet {
     @Value("#{JobParameters['option1']}")
     private String option1;
 
+    @Autowired
+    private SampleProperty sampleProperty;
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         log.info("Hello World!!");
@@ -33,8 +38,12 @@ public class HelloTasklet implements Tasklet {
         ExecutionContext stepContext = contribution.getStepExecution().getExecutionContext();
         stepContext.put("stepKey","stepValue");
 
+        // JobParamterの確認
         log.info("require1={}",require1);
         log.info("option1={}",option1);
+
+        //プロパティの表示
+        log.info("sample.property={}",sampleProperty.getSampleProperty());
 
         return RepeatStatus.FINISHED;
     }
